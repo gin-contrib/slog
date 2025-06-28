@@ -20,6 +20,7 @@ Gin middleware for Go 1.23+ [`slog`](https://pkg.go.dev/log/slog) logging.
 - Add custom fields or alter records/context per request
 - Output in standard text format compatible with `slog`
 - Fully extensible via Options pattern
+- Sensitive request headers (like Authorization/Cookie/etc) are hidden by default in logs, and can be customized
 
 ## Installation
 
@@ -108,6 +109,11 @@ func main() {
     slog.WithSkipper(func(c *gin.Context) bool {
       return c.Request.Method == "OPTIONS"
     }),
+    // Hide sensitive request headers from logs (optional, default hides Authorization/Cookie/etc)
+    slog.WithRequestHeader(true), // Set to false to disable logging all request headers
+    slog.WithHiddenRequestHeaders([]string{
+      "authorization", "cookie", "x-csrf-token", // set your own or reset
+    }),
   ))
 
   r.Run()
@@ -124,6 +130,7 @@ Each HTTP request log will include by default:
 - `ip` (string): Client IP address
 - `latency` (duration): Time to handle request
 - `user_agent` (string): Client's User-Agent header
+- `header_xxx` (string): Other request headers. Sensitive headers such as Authorization, Cookie, Set-Cookie, x-csrf-token, x-auth-token, x-xsrf-token are hidden by default. See `WithHiddenRequestHeaders()`.
 - `body_size` (int): Size of the response body
 
 Additional fields can be injected via `WithContext`.
@@ -149,27 +156,21 @@ Retrieves the underlying `*slog.Logger` from Gin's context. Access this in your 
 All the options below can be passed to `SetLogger()`.
 
 | Option                                                 | Description                                                                              |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+|--------------------------------------------------------|------------------------------------------------------------------------------------------|
 | `WithLogger(fn)`                                       | Inject a custom logger for each request: `func(*gin.Context, *slog.Logger) *slog.Logger` |
 | `WithContext(fn)`                                      | Alter the log record per request: `func(*gin.Context, *slog.Record) *slog.Record`        |
-| `WithWriter(w io.Writer)`                              | Set log output (default: `gin.DefaultWriter`; e.g., `os.Stdout`)                         |
-| `WithMessage(msg string)`                              | Set a custom message for each log line (default: `"Request"`)                            |
-| `WithSkipPath([]string)`                               | List of URL paths to skip logging                                                        |
-| `WithSkipPathRegexps(...*regexp.Regexp)`               | Regexps to match paths to skip logging                                                   |
-| `WithSkipper(fn)`                                      | Custom Skipper function: `func(c *gin.Context) bool`—return `true` to skip this request  |
-| `WithUTC(bool)`                                        | Use UTC instead of local time                                                            |
-| `WithDefaultLevel(slog.Level)`                         | Level for requests with status < 400 (default: `Info`)                                   |
-| `WithClientErrorLevel(slog.Level)`                     | Level for 4xx (default: `Warn`)                                                          |
-| `WithServerErrorLevel(slog.Level)`                     | Level for 5xx (default: `Error`)                                                         |
-| `WithPathLevel(map[string]slog.Level)`                 | Map of URL paths to log levels                                                           |
-| `WithSpecificLogLevelByStatusCode(map[int]slog.Level)` | Set log level for specific status codes                                                  |
-
-#### Parsing Levels
-
-Use `slog.ParseLevel(str)` to convert strings like `"debug"`, `"info"`, `"warn"`, `"error"` to `slog.Level` values.
+| `WithWriter(w io.Writer)`                              | Set log output (default: `gin.DefaultWriter`; e.g., `os.Stdout`)                        |
+| `WithMessage(msg string)`                              | Set a custom message for each log line (default: `"Request"`)                           |
+| `WithSkipPath([]string)`                               | List of URL paths to skip logging                                                       |
+| `WithSkipPathRegexps(...*regexp.Regexp)`               | Regexps to match paths to skip logging                                                  |
+| `WithSkipper(fn)`                                      | Custom Skipper function: `func(c *gin.Context) bool`—return `true` to skip this request |
+| `WithUTC(bool)`                                        | Use UTC instead of local time                                                           |
+| `WithDefaultLevel(slog.Level)`                         | Level for requests with status < 400 (default: `Info`)                                  |
+| `WithClientErrorLevel(slog.Level)`                     | Level for 4xx (default: `Warn`)                                                         |
+| `WithServerErrorLevel(slog.Level)`                     | Level for 5xx (default: `Error`)                                                        |
+| `WithPathLevel(map[string]slog.Level)`                 | Map of URL paths to log levels                                                          |
+| `WithSpecificLogLevelByStatusCode(map[int]slog.Level)` | Set log level for specific status codes                                                 |
+| `WithRequestHeader(enabled)`                           | Enable or disable logging all HTTP request headers (except hidden ones)                 |
+| `WithHiddenRequestHeaders([]string)`                   | Set which request headers to hide from logs (default hides Authorization, Cookie, Set-Cookie, x-auth-token, x-csrf-token, x-xsrf-token). Case-insensitive. |
 
 ---
-
-## License
-
-[MIT License](LICENSE)
