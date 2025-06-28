@@ -127,15 +127,18 @@ Each HTTP request log will include by default:
 - `status` (int): Response HTTP status code
 - `method` (string): HTTP method
 - `path` (string): URL path
+- `query` (string): Raw query string (excluding `?` if empty)
+- `route` (string): Registered Gin route path (e.g. `/api/:name`)
 - `ip` (string): Client IP address
 - `latency` (duration): Time to handle request
+- `referer` (string): Client's Referer header, if present
 - `user_agent` (string): Client's User-Agent header
-- `header_xxx` (string): Other request headers. Sensitive headers such as Authorization, Cookie, Set-Cookie, x-csrf-token, x-auth-token, x-xsrf-token are hidden by default. See `WithHiddenRequestHeaders()`.
+- `headers` (object): (Optional) All HTTP request headers, as a group—see `WithRequestHeader` and `WithHiddenRequestHeaders`. Sensitive headers such as Authorization, Cookie, Set-Cookie, x-csrf-token, x-auth-token, x-xsrf-token are hidden by default.
 - `body_size` (int): Size of the response body
 
 Additional fields can be injected via `WithContext`.
 
-Log level is determined by status code, per-path configuration, or explicit mapping (see below).
+Log level is determined by status code, per-route configuration, or explicit mapping (see below).
 
 ## API
 
