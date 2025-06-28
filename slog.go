@@ -33,74 +33,23 @@ and returns a boolean indicating whether to skip the middleware for the given co
 */
 type Skipper func(c *gin.Context) bool
 
-/*
-config holds the configuration for the logger middleware.
-*/
+// config holds logger middleware settings.
 type config struct {
-	/*
-		logger is a function that defines the logging behavior.
-	*/
-	logger Fn
-	/*
-		context is a function that defines the logging behavior of gin.Context data
-	*/
-	context EventFn
-	/*
-		utc is a boolean stating whether to use UTC time zone or local.
-	*/
-	utc bool
-	/*
-		skipPath is a list of paths to be skipped from logging.
-	*/
-	skipPath []string
-	/*
-		skipPathRegexps is a list of regular expressions to match paths to be skipped from logging.
-	*/
-	skipPathRegexps []*regexp.Regexp
-	/*
-		skip is a Skipper that indicates which logs should not be written. Optional.
-	*/
-	skip Skipper
-	/*
-		output is a writer where logs are written. Optional. Default value is gin.DefaultWriter.
-	*/
-	output io.Writer
-	/*
-		defaultLevel is the log level used for requests with status code < 400.
-	*/
-	defaultLevel slog.Level
-	/*
-		clientErrorLevel is the log level used for requests with status code between 400 and 499.
-	*/
-	clientErrorLevel slog.Level
-	/*
-		serverErrorLevel is the log level used for requests with status code >= 500.
-	*/
-	serverErrorLevel slog.Level
-	/*
-		pathLevels is a map of specific paths to log levels for requests with status code < 400.
-	*/
-	pathLevels map[string]slog.Level
-	/*
-		message is a custom string that sets a log-message when http-request has finished
-	*/
-	message string
-	/*
-		specificLevelByStatusCode is a map of specific status codes to log levels every request
-	*/
-	specificLevelByStatusCode map[int]slog.Level
-	/*
-		withRequestHeader enables or disables logging all HTTP request headers in the log entry.
-		If true, all request headers will be recorded as "request_headers" in the log.
-	*/
-	withRequestHeader bool
-	/*
-		hiddenRequestHeaders is a set of request header names that should be hidden (excluded) from log output.
-		Header keys should be in lower-case and match the canonical HTTP header format.
-		Defaults are: authorization, cookie, set-cookie, x-auth-token, x-csrf-token, x-xsrf-token.
-		Can be customized via WithHiddenRequestHeaders option.
-	*/
-	hiddenRequestHeaders map[string]struct{}
+	logger                    Fn                    // custom logger function
+	context                   EventFn               // gin.Context to log context
+	utc                       bool                  // use UTC time
+	skipPath                  []string              // exact path to skip
+	skipPathRegexps           []*regexp.Regexp      // regex path to skip
+	skip                      Skipper               // function to skip logging
+	output                    io.Writer             // log output writer
+	defaultLevel              slog.Level            // <400 log level
+	clientErrorLevel          slog.Level            // 400-499 log level
+	serverErrorLevel          slog.Level            // >=500 log level
+	pathLevels                map[string]slog.Level // per-path <400 log level
+	message                   string                // log message
+	specificLevelByStatusCode map[int]slog.Level    // status-specific log level
+	withRequestHeader         bool                  // log all headers
+	hiddenRequestHeaders      map[string]struct{}   // hidden headers (lower-case)
 }
 
 const loggerKey = "_gin-contrib/logger_"
