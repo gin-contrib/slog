@@ -157,7 +157,7 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 	}
 
 	// Create a set of paths to skip logging
-	skip := make(map[string]struct{}, len(cfg.skipPath))
+	skip := map[string]struct{}{}
 	for _, route := range cfg.skipPath {
 		skip[route] = struct{}{}
 	}
@@ -223,15 +223,15 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 
 		// Add each HTTP request header as a separate log field if enabled
 		if cfg.withRequestHeader && c.Request.Header != nil {
-			kv := []any{}
+			headers := make(map[string]any, len(c.Request.Header))
 			for k, v := range c.Request.Header {
-				// Only log headers not present in hiddenRequestHeaders (case-insensitive)
-				if _, hidden := cfg.hiddenRequestHeaders[strings.ToLower(k)]; hidden {
+				keyLower := strings.ToLower(k)
+				if _, hidden := cfg.hiddenRequestHeaders[keyLower]; hidden {
 					continue
 				}
-				kv = append(kv, slog.Any(k, v))
+				headers[k] = v
 			}
-			record.Add("headers", slog.Group("header", kv...))
+			record.Add("headers", headers)
 		}
 
 		recPtr := &record
