@@ -269,3 +269,20 @@ func WithSpecificLogLevelByStatusCode(statusCodes map[int]slog.Level) Option {
 		c.specificLevelByStatusCode = statusCodes
 	})
 }
+
+/*
+WithRequestHeader returns an Option that enables or disables logging of all HTTP request headers in each log entry.
+
+Args:
+
+	enabled (bool): If true, all request headers will be included in the log entry; otherwise, they will be omitted.
+
+Returns:
+
+	Option: An option that sets the withRequestHeader field in the config.
+*/
+func WithRequestHeader(enabled bool) Option {
+	return optionFunc(func(c *config) {
+		c.withRequestHeader = enabled
+	})
+}

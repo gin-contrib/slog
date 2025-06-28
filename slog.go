@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -88,6 +89,11 @@ type config struct {
 		specificLevelByStatusCode is a map of specific status codes to log levels every request
 	*/
 	specificLevelByStatusCode map[int]slog.Level
+	/*
+		withRequestHeader enables or disables logging all HTTP request headers in the log entry.
+		If true, all request headers will be recorded as "request_headers" in the log.
+	*/
+	withRequestHeader bool
 }
 
 const loggerKey = "_gin-contrib/logger_"
@@ -186,6 +192,14 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 			record.Add("user_agent", c.Request.UserAgent())
 			record.Add("body_size", c.Writer.Size())
 
+			// Add each HTTP request header as a separate log field if enabled
+			if cfg.withRequestHeader && c.Request.Header != nil {
+				for k, v := range c.Request.Header {
+					fieldName := "header_" + normalizeHeaderKey(k)
+					record.Add(fieldName, fmt.Sprintf("%v", v))
+				}
+			}
+
 			recPtr := &record
 			if cfg.context != nil {
 				recPtr = cfg.context(c, recPtr)
@@ -263,4 +277,10 @@ Returns:
 */
 func Get(c *gin.Context) *slog.Logger {
 	return c.MustGet(loggerKey).(*slog.Logger)
+}
+
+// normalizeHeaderKey normalizes HTTP header keys to a log-friendly format for field naming.
+// It replaces hyphens with underscores and converts all characters to lower case.
+func normalizeHeaderKey(s string) string {
+	return strings.ReplaceAll(strings.ToLower(s), "-", "_")
 }
