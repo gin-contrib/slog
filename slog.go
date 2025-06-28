@@ -158,8 +158,8 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 
 	// Create a set of paths to skip logging
 	skip := make(map[string]struct{}, len(cfg.skipPath))
-	for _, path := range cfg.skipPath {
-		skip[path] = struct{}{}
+	for _, route := range cfg.skipPath {
+		skip[route] = struct{}{}
 	}
 
 	// Initialize the base logger
@@ -175,12 +175,12 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 		}
 
 		start := time.Now()
-		path := c.Request.URL.Path
+		route := c.Request.URL.Path
 		if raw := c.Request.URL.RawQuery; raw != "" {
-			path += "?" + raw
+			route += "?" + raw
 		}
 
-		track := !shouldSkipLogging(path, skip, cfg, c)
+		track := !shouldSkipLogging(route, skip, cfg, c)
 
 		c.Set(loggerKey, rl)
 
@@ -198,11 +198,11 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 				msg += " with errors: " + c.Errors.String()
 			}
 
-			level := getLogLevel(cfg, c, path)
+			level := getLogLevel(cfg, c, route)
 			record := slog.NewRecord(end, level, msg, 0)
 			record.Add("status", c.Writer.Status())
 			record.Add("method", c.Request.Method)
-			record.Add("path", path)
+			record.Add("path", route)
 			record.Add("ip", c.ClientIP())
 			record.Add("latency", latency)
 			record.Add("user_agent", c.Request.UserAgent())
@@ -255,19 +255,19 @@ func ParseLevel(levelStr string) (slog.Level, error) {
 	}
 }
 
-func shouldSkipLogging(path string, skip map[string]struct{}, cfg *config, c *gin.Context) bool {
-	if _, ok := skip[path]; ok || (cfg.skip != nil && cfg.skip(c)) {
+func shouldSkipLogging(route string, skip map[string]struct{}, cfg *config, c *gin.Context) bool {
+	if _, ok := skip[route]; ok || (cfg.skip != nil && cfg.skip(c)) {
 		return true
 	}
 	for _, reg := range cfg.skipPathRegexps {
-		if reg.MatchString(path) {
+		if reg.MatchString(route) {
 			return true
 		}
 	}
 	return false
 }
 
-func getLogLevel(cfg *config, c *gin.Context, path string) slog.Level {
+func getLogLevel(cfg *config, c *gin.Context, route string) slog.Level {
 	if lvl, has := cfg.specificLevelByStatusCode[c.Writer.Status()]; has {
 		return lvl
 	}
@@ -277,7 +277,7 @@ func getLogLevel(cfg *config, c *gin.Context, path string) slog.Level {
 	if c.Writer.Status() >= http.StatusInternalServerError {
 		return cfg.serverErrorLevel
 	}
-	if lvl, has := cfg.pathLevels[path]; has {
+	if lvl, has := cfg.pathLevels[route]; has {
 		return lvl
 	}
 	return cfg.defaultLevel
