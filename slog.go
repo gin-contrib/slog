@@ -176,11 +176,8 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 
 		start := time.Now()
 		route := c.Request.URL.Path
-		if raw := c.Request.URL.RawQuery; raw != "" {
-			route += "?" + raw
-		}
-
-		track := !shouldSkipLogging(route, skip, cfg, c)
+		query := c.Request.URL.RawQuery
+		track := !shouldSkipLogging(route+"?"+query, skip, cfg, c)
 
 		c.Set(loggerKey, rl)
 
@@ -191,21 +188,30 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 			if cfg.utc {
 				end = end.UTC()
 			}
-			latency := end.Sub(start)
 
 			msg := cfg.message
 			if len(c.Errors) > 0 {
 				msg += " with errors: " + c.Errors.String()
 			}
 
+			latency := end.Sub(start)
+			status := c.Writer.Status()
+			method := c.Request.Method
+			userAgent := c.Request.UserAgent()
+			ip := c.ClientIP()
+			referer := c.Request.Referer()
+
 			level := getLogLevel(cfg, c, route)
 			record := slog.NewRecord(end, level, msg, 0)
-			record.Add("status", c.Writer.Status())
-			record.Add("method", c.Request.Method)
+			record.Add("status", status)
+			record.Add("method", method)
 			record.Add("path", route)
-			record.Add("ip", c.ClientIP())
+			record.Add("query", query)
+			record.Add("route", c.FullPath())
+			record.Add("ip", ip)
 			record.Add("latency", latency)
-			record.Add("user_agent", c.Request.UserAgent())
+			record.Add("referer", referer)
+			record.Add("user_agent", userAgent)
 			record.Add("body_size", c.Writer.Size())
 
 			// Add each HTTP request header as a separate log field if enabled

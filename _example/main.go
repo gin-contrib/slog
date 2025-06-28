@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-contrib/slog"
@@ -49,6 +50,14 @@ func main() {
 				"authorization": authorization,
 				"custom_header": customHeader,
 			},
+		})
+	})
+
+	r.GET("/error/:id", func(c *gin.Context) {
+		// Simulate an error
+		c.Error(gin.Error{
+			Err:  fmt.Errorf("simulated error"),
+			Type: gin.ErrorTypePrivate,
 		})
 	})
 
