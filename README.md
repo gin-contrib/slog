@@ -1,7 +1,7 @@
 # gin-slog
 
-[![Run Tests](https://github.com/gin-contrib/slog/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/gin-contrib/slog/actions/workflows/go.yml)
-[![codecov](https://codecov.io/gh/gin-contrib/slog/branch/master/graph/badge.svg)](https://codecov.io/gh/gin-contrib/slog)
+[![Run Tests](https://github.com/gin-contrib/slog/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/gin-contrib/slog/actions/workflows/go.yml)
+[![codecov](https://codecov.io/gh/gin-contrib/slog/branch/main/graph/badge.svg)](https://codecov.io/gh/gin-contrib/slog)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gin-contrib/slog)](https://goreportcard.com/report/github.com/gin-contrib/slog)
 [![GoDoc](https://pkg.go.dev/badge/github.com/gin-contrib/slog?utm_source=godoc)](https://pkg.go.dev/github.com/gin-contrib/slog)
 
