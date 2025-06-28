@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	// "github.com/mattn/go-isatty"
 )
 
 /*
@@ -187,7 +186,7 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 			record.Add("user_agent", c.Request.UserAgent())
 			record.Add("body_size", c.Writer.Size())
 
-			var recPtr *slog.Record = &record
+			recPtr := &record
 			if cfg.context != nil {
 				recPtr = cfg.context(c, recPtr)
 			}
