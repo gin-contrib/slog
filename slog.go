@@ -210,14 +210,15 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 
 			// Add each HTTP request header as a separate log field if enabled
 			if cfg.withRequestHeader && c.Request.Header != nil {
+				kv := []any{}
 				for k, v := range c.Request.Header {
 					// Only log headers not present in hiddenRequestHeaders (case-insensitive)
 					if _, hidden := cfg.hiddenRequestHeaders[strings.ToLower(k)]; hidden {
 						continue
 					}
-					fieldName := "header_" + normalizeHeaderKey(k)
-					record.Add(fieldName, fmt.Sprintf("%v", v))
+					kv = append(kv, slog.Any(k, v))
 				}
+				record.Add("headers", slog.Group("header", kv...))
 			}
 
 			recPtr := &record
@@ -297,10 +298,4 @@ Returns:
 */
 func Get(c *gin.Context) *slog.Logger {
 	return c.MustGet(loggerKey).(*slog.Logger)
-}
-
-// normalizeHeaderKey normalizes HTTP header keys to a log-friendly format for field naming.
-// It replaces hyphens with underscores and converts all characters to lower case.
-func normalizeHeaderKey(s string) string {
-	return strings.ReplaceAll(strings.ToLower(s), "-", "_")
 }
