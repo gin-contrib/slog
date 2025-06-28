@@ -22,7 +22,7 @@ Gin middleware for Go 1.21+ [`slog`](https://pkg.go.dev/log/slog) logging.
 go get github.com/gin-contrib/slog
 ```
 
-Requires Go 1.21+.
+Requires Go 1.23+.
 
 ## Usage
 
