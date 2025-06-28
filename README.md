@@ -19,7 +19,7 @@ Gin middleware for Go 1.21+ [`slog`](https://pkg.go.dev/log/slog) logging.
 ## Installation
 
 ```sh
-go get github.com/appleboy/gin-slog
+go get github.com/gin-contrib/slog
 ```
 
 Requires Go 1.21+.
@@ -33,7 +33,7 @@ package main
 
 import (
   "github.com/gin-gonic/gin"
-  "github.com/appleboy/gin-slog"
+  "github.com/gin-contrib/slog"
 )
 
 func main() {
@@ -60,7 +60,7 @@ import (
   "regexp"
   
   "github.com/gin-gonic/gin"
-  "github.com/appleboy/gin-slog"
+  "github.com/gin-contrib/slog"
 )
 
 func main() {
