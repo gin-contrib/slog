@@ -150,7 +150,7 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 			msg += " with errors: " + c.Errors.String()
 		}
 
-		latency := end.Sub(start)
+		latency := time.Since(start)
 		status := c.Writer.Status()
 		method := c.Request.Method
 		userAgent := c.Request.UserAgent()
