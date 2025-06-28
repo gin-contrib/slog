@@ -177,63 +177,69 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 		start := time.Now()
 		route := c.Request.URL.Path
 		query := c.Request.URL.RawQuery
-		track := !shouldSkipLogging(route+"?"+query, skip, cfg, c)
-
 		c.Set(loggerKey, rl)
 
 		c.Next()
 
-		if track {
-			end := time.Now()
-			if cfg.utc {
-				end = end.UTC()
-			}
-
-			msg := cfg.message
-			if len(c.Errors) > 0 {
-				msg += " with errors: " + c.Errors.String()
-			}
-
-			latency := end.Sub(start)
-			status := c.Writer.Status()
-			method := c.Request.Method
-			userAgent := c.Request.UserAgent()
-			ip := c.ClientIP()
-			referer := c.Request.Referer()
-
-			level := getLogLevel(cfg, c, route)
-			record := slog.NewRecord(end, level, msg, 0)
-			record.Add("status", status)
-			record.Add("method", method)
-			record.Add("path", route)
-			record.Add("query", query)
-			record.Add("route", c.FullPath())
-			record.Add("ip", ip)
-			record.Add("latency", latency)
-			record.Add("referer", referer)
-			record.Add("user_agent", userAgent)
-			record.Add("body_size", c.Writer.Size())
-
-			// Add each HTTP request header as a separate log field if enabled
-			if cfg.withRequestHeader && c.Request.Header != nil {
-				kv := []any{}
-				for k, v := range c.Request.Header {
-					// Only log headers not present in hiddenRequestHeaders (case-insensitive)
-					if _, hidden := cfg.hiddenRequestHeaders[strings.ToLower(k)]; hidden {
-						continue
-					}
-					kv = append(kv, slog.Any(k, v))
-				}
-				record.Add("headers", slog.Group("header", kv...))
-			}
-
-			recPtr := &record
-			if cfg.context != nil {
-				recPtr = cfg.context(c, recPtr)
-			}
-
-			_ = rl.Handler().Handle(c.Request.Context(), *recPtr)
+		skipRoute := route
+		if query != "" {
+			skipRoute += "?" + query
 		}
+
+		track := !shouldSkipLogging(skipRoute, skip, cfg, c)
+		if !track {
+			return
+		}
+
+		end := time.Now()
+		if cfg.utc {
+			end = end.UTC()
+		}
+
+		msg := cfg.message
+		if len(c.Errors) > 0 {
+			msg += " with errors: " + c.Errors.String()
+		}
+
+		latency := end.Sub(start)
+		status := c.Writer.Status()
+		method := c.Request.Method
+		userAgent := c.Request.UserAgent()
+		ip := c.ClientIP()
+		referer := c.Request.Referer()
+
+		level := getLogLevel(cfg, c, route)
+		record := slog.NewRecord(end, level, msg, 0)
+		record.Add("status", status)
+		record.Add("method", method)
+		record.Add("path", route)
+		record.Add("query", query)
+		record.Add("route", c.FullPath())
+		record.Add("ip", ip)
+		record.Add("latency", latency)
+		record.Add("referer", referer)
+		record.Add("user_agent", userAgent)
+		record.Add("body_size", c.Writer.Size())
+
+		// Add each HTTP request header as a separate log field if enabled
+		if cfg.withRequestHeader && c.Request.Header != nil {
+			kv := []any{}
+			for k, v := range c.Request.Header {
+				// Only log headers not present in hiddenRequestHeaders (case-insensitive)
+				if _, hidden := cfg.hiddenRequestHeaders[strings.ToLower(k)]; hidden {
+					continue
+				}
+				kv = append(kv, slog.Any(k, v))
+			}
+			record.Add("headers", slog.Group("header", kv...))
+		}
+
+		recPtr := &record
+		if cfg.context != nil {
+			recPtr = cfg.context(c, recPtr)
+		}
+
+		_ = rl.Handler().Handle(c.Request.Context(), *recPtr)
 	}
 }
 

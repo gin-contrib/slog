@@ -14,6 +14,7 @@ func main() {
 	// Add slog middleware with default settings
 	r.Use(slog.SetLogger(
 		slog.WithRequestHeader(true),
+		slog.WithSkipPath([]string{"/ok"}), // Skip logging for this path
 	))
 
 	// Example route
