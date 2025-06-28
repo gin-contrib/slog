@@ -32,19 +32,24 @@ Requires Go 1.21+.
 package main
 
 import (
-  "github.com/gin-gonic/gin"
+  "net/http"
+
   "github.com/gin-contrib/slog"
+  "github.com/gin-gonic/gin"
 )
 
 func main() {
   r := gin.New()
-  // Add gin-slog middleware with default settings
+
+  // Add slog middleware with default settings
   r.Use(slog.SetLogger())
-  // Your routes...
+
+  // Example route
   r.GET("/", func(c *gin.Context) {
     slog.Get(c).Info("Hello World!")
-    c.String(200, "ok")
+    c.String(http.StatusOK, "ok")
   })
+
   r.Run()
 }
 ```
