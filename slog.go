@@ -94,6 +94,13 @@ type config struct {
 		If true, all request headers will be recorded as "request_headers" in the log.
 	*/
 	withRequestHeader bool
+	/*
+		hiddenRequestHeaders is a set of request header names that should be hidden (excluded) from log output.
+		Header keys should be in lower-case and match the canonical HTTP header format.
+		Defaults are: authorization, cookie, set-cookie, x-auth-token, x-csrf-token, x-xsrf-token.
+		Can be customized via WithHiddenRequestHeaders option.
+	*/
+	hiddenRequestHeaders map[string]struct{}
 }
 
 const loggerKey = "_gin-contrib/logger_"
@@ -133,6 +140,15 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 		serverErrorLevel: slog.LevelError,
 		output:           os.Stderr,
 		message:          "Request",
+		hiddenRequestHeaders: map[string]struct{}{
+			"authorization": {},
+			"cookie":        {},
+			"set-cookie":    {},
+			"x-auth-token":  {},
+			"x-csrf-token":  {},
+			"x-xsrf-token":  {},
+			"user-agent":    {}, // Optional: Include user-agent in hidden headers
+		},
 	}
 
 	// Apply each option to the config
@@ -195,6 +211,10 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 			// Add each HTTP request header as a separate log field if enabled
 			if cfg.withRequestHeader && c.Request.Header != nil {
 				for k, v := range c.Request.Header {
+					// Only log headers not present in hiddenRequestHeaders (case-insensitive)
+					if _, hidden := cfg.hiddenRequestHeaders[strings.ToLower(k)]; hidden {
+						continue
+					}
 					fieldName := "header_" + normalizeHeaderKey(k)
 					record.Add(fieldName, fmt.Sprintf("%v", v))
 				}

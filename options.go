@@ -4,6 +4,7 @@ import (
 	"io"
 	"log/slog"
 	"regexp"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -284,5 +285,36 @@ Returns:
 func WithRequestHeader(enabled bool) Option {
 	return optionFunc(func(c *config) {
 		c.withRequestHeader = enabled
+	})
+}
+
+/*
+WithHiddenRequestHeaders returns an Option that sets the set of HTTP request headers
+to be hidden (excluded) from the log output. By default, the following headers are hidden:
+
+  - authorization
+  - cookie
+  - set-cookie
+  - x-auth-token
+  - x-csrf-token
+  - x-xsrf-token
+
+You may override this by providing a slice of header names. Header names are matched case-insensitively.
+A convenience option for sensitive data masking. Takes effect only if WithRequestHeader is enabled.
+
+Parameters:
+
+	headers - Slice of header names to be hidden
+
+Returns:
+
+	Option - An option that sets the hiddenRequestHeaders field in the config
+*/
+func WithHiddenRequestHeaders(headers []string) Option {
+	return optionFunc(func(c *config) {
+		c.hiddenRequestHeaders = make(map[string]struct{}, len(headers))
+		for _, h := range headers {
+			c.hiddenRequestHeaders[strings.ToLower(h)] = struct{}{}
+		}
 	})
 }
