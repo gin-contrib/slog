@@ -13,13 +13,13 @@ type Option interface {
 	apply(*config)
 }
 
-var _ Option = (*optionFunc)(nil)
-
 type optionFunc func(*config)
 
 func (o optionFunc) apply(c *config) {
 	o(c)
 }
+
+var _ Option = (*optionFunc)(nil)
 
 // WithLogger sets a logger function to the config.
 func WithLogger(fn func(*gin.Context, *slog.Logger) *slog.Logger) Option {
@@ -28,14 +28,10 @@ func WithLogger(fn func(*gin.Context, *slog.Logger) *slog.Logger) Option {
 	})
 }
 
-// WithSkipPathRegexps appends regexp rules for skipPathRegexps in config.
-func WithSkipPathRegexps(regs ...*regexp.Regexp) Option {
+// WithContext sets a custom context handler for slog.Record.
+func WithContext(fn func(*gin.Context, *slog.Record) *slog.Record) Option {
 	return optionFunc(func(c *config) {
-		if len(regs) == 0 {
-			return
-		}
-
-		c.skipPathRegexps = append(c.skipPathRegexps, regs...)
+		c.context = fn
 	})
 }
 
@@ -53,10 +49,20 @@ func WithSkipPath(s []string) Option {
 	})
 }
 
-// WithPathLevel sets path-specific logging levels.
-func WithPathLevel(m map[string]slog.Level) Option {
+// WithSkipPathRegexps appends regexp rules for skipPathRegexps in config.
+func WithSkipPathRegexps(regs ...*regexp.Regexp) Option {
 	return optionFunc(func(c *config) {
-		c.pathLevels = m
+		if len(regs) == 0 {
+			return
+		}
+		c.skipPathRegexps = append(c.skipPathRegexps, regs...)
+	})
+}
+
+// WithSkipper sets a function to skip logging for certain requests.
+func WithSkipper(s Skipper) Option {
+	return optionFunc(func(c *config) {
+		c.skip = s
 	})
 }
 
@@ -88,17 +94,10 @@ func WithServerErrorLevel(lvl slog.Level) Option {
 	})
 }
 
-// WithSkipper sets a function to skip logging for certain requests.
-func WithSkipper(s Skipper) Option {
+// WithPathLevel sets path-specific logging levels.
+func WithPathLevel(m map[string]slog.Level) Option {
 	return optionFunc(func(c *config) {
-		c.skip = s
-	})
-}
-
-// WithContext sets a custom context handler for slog.Record.
-func WithContext(fn func(*gin.Context, *slog.Record) *slog.Record) Option {
-	return optionFunc(func(c *config) {
-		c.context = fn
+		c.pathLevels = m
 	})
 }
 
