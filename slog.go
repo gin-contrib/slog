@@ -170,16 +170,9 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 		record.Add("user_agent", userAgent)
 		record.Add("body_size", c.Writer.Size())
 
-		// Add each HTTP request header as a separate log field if enabled
+		// Add visible HTTP request headers as a log field if enabled
 		if cfg.withRequestHeader && c.Request.Header != nil {
-			headers := make(map[string]any, len(c.Request.Header))
-			for k, v := range c.Request.Header {
-				keyLower := strings.ToLower(k)
-				if _, hidden := cfg.hiddenRequestHeaders[keyLower]; hidden {
-					continue
-				}
-				headers[k] = v
-			}
+			headers := extractVisibleHeaders(c.Request.Header, cfg.hiddenRequestHeaders)
 			record.Add("headers", headers)
 		}
 
@@ -214,6 +207,17 @@ func ParseLevel(levelStr string) (slog.Level, error) {
 	default:
 		return slog.LevelInfo, fmt.Errorf("unknown slog level: %s", levelStr)
 	}
+}
+
+// extractVisibleHeaders filters HTTP headers by hidden list.
+func extractVisibleHeaders(header http.Header, hidden map[string]struct{}) map[string]any {
+	filtered := make(map[string]any, len(header))
+	for k, v := range header {
+		if _, exists := hidden[strings.ToLower(k)]; !exists {
+			filtered[k] = v
+		}
+	}
+	return filtered
 }
 
 func shouldSkipLogging(route string, skip map[string]struct{}, cfg *config, c *gin.Context) bool {
