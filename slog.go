@@ -84,11 +84,12 @@ The logging level for each request is determined based on the response status co
 */
 func SetLogger(opts ...Option) gin.HandlerFunc {
 	cfg := &config{
-		defaultLevel:     slog.LevelInfo,
-		clientErrorLevel: slog.LevelWarn,
-		serverErrorLevel: slog.LevelError,
-		output:           os.Stderr,
-		message:          "Request",
+		defaultLevel:      slog.LevelInfo,
+		clientErrorLevel:  slog.LevelWarn,
+		serverErrorLevel:  slog.LevelError,
+		output:            os.Stderr,
+		message:           "Request",
+		withRequestHeader: false, // Recommended: enable only in debug/testing, keep disabled by default in production
 		hiddenRequestHeaders: map[string]struct{}{
 			"authorization": {},
 			"cookie":        {},
