@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-contrib/slog"
@@ -62,5 +63,7 @@ func main() {
 		})
 	})
 
-	r.Run()
+	if err := r.Run(); err != nil {
+		log.Fatalf("server failed to start: %v", err)
+	}
 }
