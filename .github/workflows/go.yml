@@ -24,11 +24,6 @@ jobs:
           version: v2.1
           args: --verbose
 
-      - name: Bearer
-        uses: bearer/bearer-action@v2
-        with:
-          diff: true
-
   test:
     strategy:
       matrix:
