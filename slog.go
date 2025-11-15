@@ -237,7 +237,8 @@ func getLogLevel(cfg *config, c *gin.Context, route string) slog.Level {
 	if lvl, has := cfg.specificLevelByStatusCode[c.Writer.Status()]; has {
 		return lvl
 	}
-	if c.Writer.Status() >= http.StatusBadRequest && c.Writer.Status() < http.StatusInternalServerError {
+	if c.Writer.Status() >= http.StatusBadRequest &&
+		c.Writer.Status() < http.StatusInternalServerError {
 		return cfg.clientErrorLevel
 	}
 	if c.Writer.Status() >= http.StatusInternalServerError {
