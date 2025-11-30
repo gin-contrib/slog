@@ -57,7 +57,7 @@ func main() {
 
 	r.GET("/error/:id", func(c *gin.Context) {
 		// Simulate an error
-		c.Error(gin.Error{
+		_ = c.Error(gin.Error{
 			Err:  fmt.Errorf("simulated error"),
 			Type: gin.ErrorTypePrivate,
 		})
