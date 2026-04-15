@@ -5,7 +5,6 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -87,7 +86,7 @@ func SetLogger(opts ...Option) gin.HandlerFunc {
 		defaultLevel:      slog.LevelInfo,
 		clientErrorLevel:  slog.LevelWarn,
 		serverErrorLevel:  slog.LevelError,
-		output:            os.Stderr,
+		output:            gin.DefaultWriter,
 		message:           "Request",
 		withRequestHeader: false, // Recommended: enable only in debug/testing, keep disabled by default in production
 		hiddenRequestHeaders: map[string]struct{}{
