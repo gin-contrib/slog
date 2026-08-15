@@ -3,7 +3,6 @@
 [![Run Tests](https://github.com/gin-contrib/slog/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/gin-contrib/slog/actions/workflows/go.yml)
 [![Trivy Security Scan](https://github.com/gin-contrib/slog/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/gin-contrib/slog/actions/workflows/trivy-scan.yml)
 [![codecov](https://codecov.io/gh/gin-contrib/slog/branch/main/graph/badge.svg)](https://codecov.io/gh/gin-contrib/slog)
-[![Go Report Card](https://goreportcard.com/badge/github.com/gin-contrib/slog)](https://goreportcard.com/report/github.com/gin-contrib/slog)
 [![GoDoc](https://pkg.go.dev/badge/github.com/gin-contrib/slog?utm_source=godoc)](https://pkg.go.dev/github.com/gin-contrib/slog)
 
 Gin middleware for Go 1.23+ [`slog`](https://pkg.go.dev/log/slog) logging.
