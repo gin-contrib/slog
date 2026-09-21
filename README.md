@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/gin-contrib/slog/branch/main/graph/badge.svg)](https://codecov.io/gh/gin-contrib/slog)
 [![Go Reference](https://pkg.go.dev/badge/github.com/gin-contrib/slog.svg)](https://pkg.go.dev/github.com/gin-contrib/slog)
 
-Gin middleware for Go 1.23+ [`slog`](https://pkg.go.dev/log/slog) logging.
+Gin middleware for Go 1.26+ [`slog`](https://pkg.go.dev/log/slog) logging.
 
 ## Overview
 
@@ -28,7 +28,7 @@ Gin middleware for Go 1.23+ [`slog`](https://pkg.go.dev/log/slog) logging.
 go get github.com/gin-contrib/slog
 ```
 
-Requires Go 1.24+.
+Requires Go 1.26+.
 
 ## Usage
 
