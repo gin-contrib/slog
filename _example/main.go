@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"log"
 	"net/http"
 
@@ -59,7 +59,7 @@ func main() {
 	r.GET("/error/:id", func(c *gin.Context) {
 		// Simulate an error
 		_ = c.Error(gin.Error{
-			Err:  fmt.Errorf("simulated error"),
+			Err:  errors.New("simulated error"),
 			Type: gin.ErrorTypePrivate,
 		})
 	})
